@@ -1,3 +1,4 @@
+import { appReducers } from './app.reducers';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -18,8 +19,11 @@ import { getAuth, provideAuth } from '@angular/fire/auth';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { getDatabase, provideDatabase } from '@angular/fire/database';
 import { getStorage, provideStorage } from '@angular/fire/storage';
-import { AngularFireAuthModule } from '@angular/fire/compat/auth';
-import { AngularFireModule } from '@angular/fire/compat';
+
+import { StoreModule } from '@ngrx/store';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { environment } from '../environments/environment';
+
 
 @NgModule({
   declarations: [
@@ -37,17 +41,23 @@ import { AngularFireModule } from '@angular/fire/compat';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    StoreModule.forRoot(appReducers),
+    StoreDevtoolsModule.instrument({
+      maxAge: 25,
+      logOnly: environment.production,
+    }),
   ],
   providers: [
-    provideFirebaseApp(() => initializeApp({ 
-      projectId: "ingreso-egreso-app-aeb07", 
-      appId: "1:393679394359:web:dc6279f941c1230665d1b2", 
-      storageBucket: "ingreso-egreso-app-aeb07.firebasestorage.app", 
-      apiKey: "AIzaSyD0z2zT9dl6yEI9kwc-gkNDAy551pAkJv4", 
-      authDomain: "ingreso-egreso-app-aeb07.firebaseapp.com", 
-      messagingSenderId: "393679394359", 
-      measurementId: "G-YPJVNFJLB0" })),
+    provideFirebaseApp(() => initializeApp({
+      projectId: "ingreso-egreso-app-aeb07",
+      appId: "1:393679394359:web:dc6279f941c1230665d1b2",
+      storageBucket: "ingreso-egreso-app-aeb07.firebasestorage.app",
+      apiKey: "AIzaSyD0z2zT9dl6yEI9kwc-gkNDAy551pAkJv4",
+      authDomain: "ingreso-egreso-app-aeb07.firebaseapp.com",
+      messagingSenderId: "393679394359",
+      measurementId: "G-YPJVNFJLB0"
+    })),
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
     provideDatabase(() => getDatabase()),

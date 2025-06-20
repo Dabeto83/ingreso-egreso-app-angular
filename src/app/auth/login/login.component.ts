@@ -1,9 +1,14 @@
 import { Router } from '@angular/router';
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 
 import Swal from 'sweetalert2'
+
+import { AppState } from '../../app.reducers';
+import { Store } from '@ngrx/store';
+import * as uiActions from '../../shared/ui.actions';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -11,35 +16,44 @@ import Swal from 'sweetalert2'
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnDestroy {
 
   loginForm: FormGroup;
+  loading: boolean = false;
+  uiSubscription: Subscription;
 
   constructor(private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private store: Store<AppState>
   ) {
     this.loginForm = this.formBuilder.group({
-      correo: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
+    });
+
+    this.uiSubscription = this.store.select('ui').subscribe(ui => {
+      this.loading = ui.isLoading;
+      console.log("cargando subs");
     });
   }
 
-  iniciarSesion() {
-    const { correo, password } = this.loginForm.value;
-    Swal.fire({
-      title: "Wait tantico por favor...",
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
+  ngOnDestroy(): void {
+    this.uiSubscription.unsubscribe();
+  }
 
-    this.authService.iniciarSesion(correo, password)
+  iniciarSesion() {
+    const { email, password } = this.loginForm.value;
+
+    this.store.dispatch(uiActions.isLoading())
+
+    this.authService.iniciarSesion(email, password)
       .then(result => {
-        Swal.close();
-        this.router.navigate(['/'])
+        this.store.dispatch(uiActions.stopLoading());
+        this.router.navigate(['/']);
       })
       .catch(error => {
+        this.store.dispatch(uiActions.stopLoading());
         Swal.fire({
           icon: "error",
           title: "Oops...",
