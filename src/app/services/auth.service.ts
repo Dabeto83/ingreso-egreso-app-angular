@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 import { User } from '../models/user.model';
 import { AppState } from '../app.reducers';
 import { Store } from '@ngrx/store';
-import * as userActions from '../shared/user.actions';
+import * as userActions from '../auth/user.actions';
 import { getDoc } from 'firebase/firestore';
 
 @Injectable({
